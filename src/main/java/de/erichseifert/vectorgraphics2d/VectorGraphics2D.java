@@ -187,7 +187,7 @@ public class VectorGraphics2D extends Graphics2D implements Cloneable {
 	@Override
 	public void drawGlyphVector(GlyphVector g, float x, float y) {
 		Shape s = g.getOutline(x, y);
-		draw(s);
+		fill(s);// PATCH : changed from draw() to fill() 
 	}
 
 	@Override

@@ -21,6 +21,8 @@
  */
 package de.erichseifert.vectorgraphics2d.svg;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -362,13 +364,21 @@ class SVGDocument extends SizedDocument {
 	private String getStyle(boolean filled, boolean fillRullNonZero) {
 		StringBuilder style = new StringBuilder();
 
+
 		Color color = getCurrentState().getColor();
 		String colorOutput = getOutput(color);
 		double opacity = color.getAlpha()/255.0;
 
+		// PATCH : APPLY ALPHA COMPOSITE
+		Composite c = getCurrentState().getComposite();
+		if (c instanceof AlphaComposite) {
+			AlphaComposite a = (AlphaComposite)c;
+			opacity*=a.getAlpha();
+		}
+
 		if (filled) {
 			appendStyle(style, "fill", colorOutput);
-			if (color.getAlpha() < 255) {
+			if (opacity < 1) {
 				appendStyle(style, "fill-opacity", opacity);
 			}
 			if (!fillRullNonZero) {
@@ -381,7 +391,7 @@ class SVGDocument extends SizedDocument {
 
 		if (!filled) {
 			appendStyle(style, "stroke", colorOutput);
-			if (color.getAlpha() < 255) {
+			if (opacity < 1) {
 				appendStyle(style, "stroke-opacity", opacity);
 			}
 			Stroke stroke = getCurrentState().getStroke();
